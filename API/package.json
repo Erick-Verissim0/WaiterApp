@@ -1,21 +1,25 @@
 {
-  "name": "waiterapp",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "https://github.com/Erick-Verissim0/WaiterApp.git",
-  "author": "Erick <estudodoerick@gmail.com>",
-  "license": "MIT",
-  "scripts": {
-    "build": "tsc"
-  },
-  "devDependencies": {
-    "@types/express": "types/express",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
-    "eslint": "^8.35.0",
-    "typescript": "^4.9.5"
-  },
-  "dependencies": {
-    "express": "^4.18.2"
-  }
+    "name": "waiterapp",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "https://github.com/Erick-Verissim0/WaiterApp.git",
+    "author": "Erick <estudodoerick@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc",
+        "dev": "nodemon src/index.ts"
+    },
+    "devDependencies": {
+        "@types/express": "types/express",
+        "@typescript-eslint/eslint-plugin": "^5.54.0",
+        "@typescript-eslint/parser": "^5.54.0",
+        "eslint": "^8.35.0",
+        "nodemon": "^2.0.20",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.5"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "mongoose": "^7.0.0"
+    }
 }
