@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 
 
 mongoose.connect('mongodb+srv://waiterapp.kj4mf2t.mongodb.net/WaiterApp')
-    .then(() => {
+    .then((
+    ) => {
         const port = 3001;
         const app = express();
 
@@ -11,9 +12,9 @@ mongoose.connect('mongodb+srv://waiterapp.kj4mf2t.mongodb.net/WaiterApp')
             console.log(`🚀 Server is running in port ${port}`);
         });
 
-        console.log('💻 Connected in MongoDB');
+        console.log('💻 MongoDB is running');
 
     })
-    .catch(() => console.log('❌ Falha ao se conectar ao MongoDB'));
+    .catch((error) => console.log('❌ Error connect in MongoDB, error: ', error));
 
 
