@@ -31,6 +31,6 @@ export const Product = model('Product', new Schema({
     category: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: 'Category'
+        ref: 'Category',
     }
 }));
