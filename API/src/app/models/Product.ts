@@ -17,17 +17,19 @@ export const Product = model('Product', new Schema({
         type: Number,
         required: true,
     },
-    ingredients: [{
+    ingredients: {
         required: true,
-        name: {
-            type: String,
-            required: true,
-        },
-        icon: {
-            type: String,
-            required: true,
-        },
-    }],
+        type: [{
+            name: {
+                type: String,
+                required: true,
+            },
+            icon: {
+                type: String,
+                required: true
+            }
+        }],
+    },
     category: {
         type: Schema.Types.ObjectId,
         required: true,
