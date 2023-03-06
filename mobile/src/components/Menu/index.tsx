@@ -1,12 +1,15 @@
 import { FlatList } from 'react-native';
+import { useState } from 'react';
 
 import { products } from '../../mocks/products';
 import { FormatCurrency } from '../../utils/formatCurrency';
 import { PlusCircle } from '../Icons/PlusCircle';
+import { ProductModal } from '../ProductModal';
 import { Text } from '../Text';
+import { Product } from '../../types/product';
 
 import {
-  Product,
+  ProductContainer,
   ProductImage,
   ProductDetails,
   Separator,
@@ -14,35 +17,51 @@ import {
 } from './styles';
 
 export function Menu() {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectProduct, setSelectProduct] = useState<null | Product>(null);
+
+  function handleOpenModal(product: Product) {
+    setIsModalVisible(true);
+    setSelectProduct(product);
+  }
+
   return (
-    <FlatList
-      data={ products }
-      style={{ marginTop: 32 }}
-      contentContainerStyle={{ paddingHorizontal: 24 }}
-      keyExtractor={product => product._id}
-      ItemSeparatorComponent={Separator}
-      renderItem={({ item: product }) => (
-        <Product>
-          <ProductImage
-            source={{
-              uri: `http://192.168.0.107:3001/uploads/${product.imagePath}`,
-            }}
-          />
+    <>
+      <ProductModal
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        product={selectProduct}
+      />
 
-          <ProductDetails>
-            <Text weight='600'>{ product.name}</Text>
+      <FlatList
+        data={ products }
+        style={{ marginTop: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 24 }}
+        keyExtractor={product => product._id}
+        ItemSeparatorComponent={Separator}
+        renderItem={({ item: product }) => (
+          <ProductContainer onPress={() => handleOpenModal(product)}>
+            <ProductImage
+              source={{
+                uri: `http://192.168.0.107:3001/uploads/${product.imagePath}`,
+              }}
+            />
 
-            <Text size={14} color="#666" style={{ marginVertical: 8 }}>{ product.description }</Text>
+            <ProductDetails>
+              <Text weight='600'>{ product.name}</Text>
 
-            <Text size={14} weight="600">{FormatCurrency( product.price )}</Text>
-          </ProductDetails>
+              <Text size={14} color="#666" style={{ marginVertical: 8 }}>{ product.description }</Text>
 
-          <AddCartButton>
-            <PlusCircle />
-          </AddCartButton>
+              <Text size={14} weight="600">{FormatCurrency( product.price )}</Text>
+            </ProductDetails>
 
-        </Product>
-      )}
-    />
+            <AddCartButton>
+              <PlusCircle />
+            </AddCartButton>
+
+          </ProductContainer>
+        )}
+      />
+    </>
   );
 }
