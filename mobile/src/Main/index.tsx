@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
+import axios from 'axios';
 
 import { Header } from '../components/Header';
 import { Menu } from '../components/Menu';
@@ -8,25 +10,47 @@ import { TableModal } from '../components/TableModal';
 import { Cart } from '../components/Cart';
 import { CartItem } from '../types/CartItem';
 import { Product } from '../types/product';
+import { products as mockProducts } from '../mocks/products';
+import { categories as mockCategories } from '../mocks/categories';
+import { Text } from '../components/Text';
+import { Empty } from '../components/Icons/Empty';
+import { Category } from '../types/Category';
 
 import {
   Container,
   CategoriesContainer,
   MenuContainer,
   Footer,
-  FooterContainer
+  FooterContainer,
+  CenteredContainer
 } from './styles';
 
 export function Main() {
   const [isTableModalVisible, setIsTableModalVisible] = useState(false);
   const [selectedTable, setSelectedTable] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    /* Promise.all([
+      axios.get('http://192.168.0.107:3001/categories'),
+      axios.get('http://192.168.0.107:3001/products'),
+    ]) */
+
+    axios.get('http://192.168.0.107:3001/categories')
+      .then((response) => { setCategories(response.data);});
+
+    axios.get('http://192.168.0.107:3001/products')
+      .then((response) => { setProducts(response.data);});
+  }, []);
 
   function handleSaveTable(table: string) {
     setSelectedTable(table);
   }
 
-  function handleCancelOrder() {
+  function handleResetOrder() {
     setSelectedTable('');
     setCartItems([]);
   }
@@ -90,23 +114,47 @@ export function Main() {
       <Container>
         <Header
           selectedTable={selectedTable}
-          onCancelOrder={handleCancelOrder}
+          onCancelOrder={handleResetOrder}
         />
 
-        <CategoriesContainer>
-          <Categories />
-        </CategoriesContainer>
+        {isLoading ? (
+          <CenteredContainer>
+            <ActivityIndicator color="#d73035" size="large" />
+          </CenteredContainer>
+        ) : (
+          <>
+            <CategoriesContainer>
+              <Categories
+                categories={categories}
+              />
+            </CategoriesContainer>
 
-        <MenuContainer>
-          <Menu onAddToCart={handleAddToCart} />
-        </MenuContainer>
+            {products.length > 0 ? (
+              <MenuContainer>
+                <Menu
+                  onAddToCart={handleAddToCart}
+                  products={products}
+                />
+              </MenuContainer>
+            ) : (
+              <CenteredContainer>
+                <Empty />
+
+                <Text color="#666" style={{ marginTop: 24 }}>Nenhum produto foi encontrado!</Text>
+              </CenteredContainer>
+            )}
+          </>
+        )}
 
       </Container>
 
       <Footer>
         <FooterContainer>
           {!selectedTable && (
-            <Button onPress={() => setIsTableModalVisible(true)}>
+            <Button
+              onPress={() => setIsTableModalVisible(true)}
+              disabled={isLoading}
+            >
               Novo Pedido
             </Button>
           )}
@@ -116,6 +164,7 @@ export function Main() {
               cartItems={cartItems}
               onAdd={handleAddToCart}
               onDecrement={handleDecrementCartItem}
+              onConfirmOrder={handleResetOrder}
             />
           )}
 

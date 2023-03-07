@@ -17,10 +17,11 @@ import {
 } from './styles';
 
 interface MenuProps {
-  onAddToCart: (product: Product) => void
+  onAddToCart: (product: Product) => void;
+  products: Product[]
 }
 
-export function Menu({ onAddToCart }: MenuProps ) {
+export function Menu({ onAddToCart, products }: MenuProps ) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectProduct, setSelectProduct] = useState<null | Product>(null);
 
