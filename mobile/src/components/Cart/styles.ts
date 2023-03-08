@@ -28,6 +28,10 @@ margin-left: 12px;
 
 export const ProductDetails = styled.View``;
 
+export const ProductName = styled.View`
+  max-width: 200px;
+`;
+
 export const Sumary = styled.View`
   flex-direction: row;
   align-items: center;

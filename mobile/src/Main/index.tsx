@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
-import axios from 'axios';
 
 import { Header } from '../components/Header';
 import { Menu } from '../components/Menu';
@@ -10,11 +9,10 @@ import { TableModal } from '../components/TableModal';
 import { Cart } from '../components/Cart';
 import { CartItem } from '../types/CartItem';
 import { Product } from '../types/product';
-import { products as mockProducts } from '../mocks/products';
-import { categories as mockCategories } from '../mocks/categories';
 import { Text } from '../components/Text';
 import { Empty } from '../components/Icons/Empty';
 import { Category } from '../types/Category';
+import { api } from '../utils/api';
 
 import {
   Container,
@@ -29,22 +27,32 @@ export function Main() {
   const [isTableModalVisible, setIsTableModalVisible] = useState(false);
   const [selectedTable, setSelectedTable] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   useEffect(() => {
-    /* Promise.all([
-      axios.get('http://192.168.0.107:3001/categories'),
-      axios.get('http://192.168.0.107:3001/products'),
-    ]) */
-
-    axios.get('http://192.168.0.107:3001/categories')
-      .then((response) => { setCategories(response.data);});
-
-    axios.get('http://192.168.0.107:3001/products')
-      .then((response) => { setProducts(response.data);});
+    Promise.all([
+      api.get('http://192.168.0.107:3001/categories'),
+      api.get('http://192.168.0.107:3001/products'),
+    ]).then(([categoriesResponse, productsResponse]) => {
+      setCategories(categoriesResponse.data);
+      setProducts(productsResponse.data);
+      setIsLoading(false);
+    });
   }, []);
+
+  async function handleSelectCategory(categoryId: string) {
+    const route = !categoryId ? '/products' : `/categories/${categoryId}/products`;
+
+    setIsLoadingProducts(true);
+
+    const { data } = await api.get(route);
+
+    setProducts(data);
+    setIsLoadingProducts(false);
+  }
 
   function handleSaveTable(table: string) {
     setSelectedTable(table);
@@ -126,22 +134,31 @@ export function Main() {
             <CategoriesContainer>
               <Categories
                 categories={categories}
+                onSelectCategory={handleSelectCategory}
               />
             </CategoriesContainer>
 
-            {products.length > 0 ? (
-              <MenuContainer>
-                <Menu
-                  onAddToCart={handleAddToCart}
-                  products={products}
-                />
-              </MenuContainer>
-            ) : (
+            {isLoadingProducts ? (
               <CenteredContainer>
-                <Empty />
-
-                <Text color="#666" style={{ marginTop: 24 }}>Nenhum produto foi encontrado!</Text>
+                <ActivityIndicator color="#d73035" size="large" />
               </CenteredContainer>
+            ) : (
+              <>
+                {products.length > 0 ? (
+                  <MenuContainer>
+                    <Menu
+                      onAddToCart={handleAddToCart}
+                      products={products}
+                    />
+                  </MenuContainer>
+                ) : (
+                  <CenteredContainer>
+                    <Empty />
+
+                    <Text color="#666" style={{ marginTop: 24 }}>Nenhum produto foi encontrado!</Text>
+                  </CenteredContainer>
+                )}
+              </>
             )}
           </>
         )}
@@ -165,6 +182,7 @@ export function Main() {
               onAdd={handleAddToCart}
               onDecrement={handleDecrementCartItem}
               onConfirmOrder={handleResetOrder}
+              selectedTable={selectedTable}
             />
           )}
 

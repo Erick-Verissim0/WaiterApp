@@ -8,6 +8,7 @@ import { PlusCircle } from '../Icons/PlusCircle';
 import { Text } from '../Text';
 import { Button } from '../Button';
 import { Product } from '../../types/product';
+import { api } from '../../utils/api';
 
 import { Item,
   ProductContainer,
@@ -16,7 +17,8 @@ import { Item,
   QuantityContainer,
   ProductDetails,
   Sumary,
-  TotalContainer
+  TotalContainer,
+  ProductName
 } from './styles';
 import { OrderConfirmModal } from '../OrderConfirmed';
 
@@ -25,19 +27,34 @@ interface CartProps {
   onAdd: (product: Product) => void;
   onDecrement: (product: Product) => void;
   onConfirmOrder: () => void;
+  selectedTable: string;
 }
 
-export function Cart({ cartItems, onAdd, onDecrement, onConfirmOrder }: CartProps) {
+export function Cart({ cartItems, onAdd, onDecrement, onConfirmOrder, selectedTable }: CartProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isLoading] =useState(false);
+  const [isLoading, setIsLoading] =useState(false);
 
   const total = cartItems.reduce((acc, cartItem) => {
     return acc + cartItem.quantity * cartItem.product.price;
   }, 0);
 
-  function handleConfirmOrder() {
+  async function handleConfirmOrder() {
+    setIsLoading(true);
+
+    await api.post('/orders', {
+      table: selectedTable,
+      products: cartItems.map((cartItem) => ({
+        product: cartItem.product._id,
+        quantity: cartItem.quantity
+      })),
+    });
+
+    setIsLoading(false);
     setIsModalVisible(true);
   }
+
+
+
 
   function handleOk() {
     onConfirmOrder();
@@ -70,17 +87,19 @@ export function Cart({ cartItems, onAdd, onDecrement, onConfirmOrder }: CartProp
                 </QuantityContainer>
 
                 <ProductDetails>
-                  <Text
-                    size={14}
-                    weight="600">
-                    {cartItem.product.name}
-                  </Text>
-                  <Text
-                    size={14}
-                    color="#666"
-                    style={{marginTop: 4}}>
-                    {FormatCurrency(cartItem.product.price)}
-                  </Text>
+                  <ProductName>
+                    <Text
+                      size={14}
+                      weight="600">
+                      {cartItem.product.name}
+                    </Text>
+                    <Text
+                      size={14}
+                      color="#666"
+                      style={{marginTop: 4}}>
+                      {FormatCurrency(cartItem.product.price)}
+                    </Text>
+                  </ProductName>
                 </ProductDetails>
               </ProductContainer>
               <Actions>
